@@ -75,7 +75,7 @@ const LoginForm = () => {
 
                     <div className="d-flex flex-column flex-md-row justify-content-center align-items-center mt-3 small text-center text-md-start gap-1">
                         <p className="mb-0">Not registered yet?</p>
-                        <Link to="/register" className="text-decoration-none">Create a new account</Link>
+                        <Link to="/signup" className="text-decoration-none">Create a new account</Link>
                     </div>
 
 
