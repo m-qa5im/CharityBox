@@ -94,7 +94,8 @@ const SignupForm = () => {
                                     name="phone"
                                     type="text"
                                     className="form-control rounded-3"
-                                    placeholder="minimum 8 characters"
+                                    placeholder="0300-0000000"
+                                    pattern="[0-9]{4}-[0-9]{7}"
                                     value={formData.phone}
                                     onChange={handleChange}
                                     required
