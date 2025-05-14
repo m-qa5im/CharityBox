@@ -17,7 +17,7 @@ app.use(cors({credentials: true})); // Allow requests from the frontend
 app.get('/', (req, res) => { 
     res.send('API...');
 });
-app.use('/api/auth', require('./routes/authRoutes.js')); // Authentication routes
+app.use('/api/auth', authRouter); // Authentication routes
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
