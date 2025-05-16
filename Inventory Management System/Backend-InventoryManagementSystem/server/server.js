@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
 import connectDB from './config/mongodb.js';
 import authRouter from './routes/authRoutes.js';
+import userRouter from './routes/userRoutes.js';
 
 
 const app = express();
@@ -19,6 +20,7 @@ app.get('/', (req, res) => {
     res.send('API...');
 });
 app.use('/api/auth', authRouter); // Authentication routes
+app.use('/api/user', userRouter); // User routes
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

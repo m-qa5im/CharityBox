@@ -43,8 +43,69 @@ export const register = async (req, res) => {
             },
             to: email,
             subject: 'Welcome to Inventory Management System',
-            text: `Hello ${firstname} ${lastname},\n\nThank you for registering with us.\n\nBest regards,\nTeam Inventory Management System`,
+            text: `Hello ${firstname} ${lastname},
+
+Thank you for registering with us.
+
+Best regards,
+Team Inventory Management System`,
+            html: `
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <style>
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background-color: #f4f6f8;
+          padding: 20px;
+          margin: 0;
+        }
+        .container {
+          max-width: 600px;
+          margin: auto;
+          background-color: #ffffff;
+          border-radius: 8px;
+          padding: 30px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .header {
+          font-size: 24px;
+          font-weight: 600;
+          color: #2c3e50;
+          margin-bottom: 20px;
+        }
+        .body-text {
+          font-size: 16px;
+          color: #333;
+        }
+        .footer {
+          margin-top: 30px;
+          font-size: 14px;
+          color: #888;
+          text-align: center;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">Welcome to Inventory Management System!</div>
+        <div class="body-text">
+          <p>Hello ${firstname} ${lastname},</p>
+          <p>Thank you for registering with us. We're excited to have you onboard!</p>
+          <p>Start managing your inventory more efficiently with our powerful tools.</p>
+        </div>
+        <div class="footer">
+          Best regards,<br/>
+          Team Inventory Management System
+        </div>
+      </div>
+    </body>
+  </html>
+  `
         };
+
 
         await transporter.sendMail(mailOptions);
 
@@ -133,8 +194,66 @@ export const sendVerifyOtp = async (req, res) => {
             },
             to: user.email,
             subject: 'Account Verification OTP',
-            text: `Hello ${user.firstname} ${user.lastname},\n\nYour OTP for account verification is: ${Otp}\n\nThis OTP will expire in 5 minutes.\n\nBest regards,\nTeam Inventory Management System`,
+            text: `Hello ${user.firstname} ${user.lastname},
+
+Your OTP for account verification is: ${Otp}
+
+This OTP will expire in 5 minutes.
+
+Best regards,
+Team Inventory Management System`,
+            html: `
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <style>
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background-color: #f4f6f8;
+          padding: 20px;
+          margin: 0;
+        }
+        .container {
+          max-width: 600px;
+          margin: auto;
+          background-color: #ffffff;
+          border-radius: 8px;
+          padding: 30px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .otp {
+          font-size: 24px;
+          font-weight: bold;
+          color: #27ae60;
+          margin: 20px 0;
+        }
+        .footer {
+          margin-top: 30px;
+          font-size: 14px;
+          color: #888;
+          text-align: center;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h2>Hello ${user.firstname} ${user.lastname},</h2>
+        <p>Thank you for registering with us! Please use the following OTP to verify your account:</p>
+        <p class="otp">${Otp}</p>
+        <p><strong>Note:</strong> This OTP is valid for <strong>5 minutes</strong>. Do not share this code with anyone.</p>
+        <p>If you did not initiate this action, please ignore this email or contact support.</p>
+        <div class="footer">
+          Best regards,<br/>
+          Team Inventory Management System
+        </div>
+      </div>
+    </body>
+  </html>
+  `
         };
+
 
         await transporter.sendMail(mailOptions);
 
@@ -184,10 +303,123 @@ export const verifyEmail = async (req, res) => {
 
 
 export const isAuthenticated = async (req, res) => {
-    try{
-        return res.json({ Success: true, message: "User is authenticated"});
+    try {
+        return res.json({ Success: true, message: "User is authenticated" });
     }
     catch (error) {
         res.status(500).json({ Success: false, message: error.message });
+    }
+};
+
+export const sendResetPasswordOtp = async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        return res.json({ Success: false, message: "Please provide email" });
+    }
+
+    try {
+        const user = await userModel.findOne({ email });
+        if (!user) {
+            return res.json({ Success: false, message: "User not found" });
+        }
+        const Otp = String(Math.floor(100000 + Math.random() * 900000));
+        user.resetOTP = Otp;
+        user.resetOTPExpireAt = Date.now() + 5 * 60 * 1000; // 5 minutes from now
+        await user.save();
+        const mailOptions = {
+            from: {
+                name: 'Inventory Management System',
+                address: process.env.SENDER_EMAIL,
+            },
+            to: user.email,
+            subject: 'Reset Password OTP',
+            text: `Hello ${user.firstname} ${user.lastname},\n\nYour OTP is: ${Otp}\n\nThis OTP will expire in 5 minutes.\n\nBest regards,\nTeam Inventory Management System`,
+            html: `
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f4f6f8;
+          padding: 20px;
+          margin: 0;
+        }
+        .container {
+          max-width: 600px;
+          margin: auto;
+          background-color: #ffffff;
+          border-radius: 8px;
+          padding: 30px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .otp {
+          font-size: 24px;
+          font-weight: bold;
+          color: #2e86de;
+          margin: 20px 0;
+        }
+        .footer {
+          margin-top: 30px;
+          font-size: 14px;
+          color: #888;
+          text-align: center;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h2>Hello ${user.firstname} ${user.lastname},</h2>
+        <p>You have requested to reset your password. Please use the OTP below to proceed:</p>
+        <p class="otp">${Otp}</p>
+        <p><strong>Note:</strong> This OTP is valid for <strong>5 minutes</strong>. Do not share this code with anyone for security reasons.</p>
+        <p>If you did not request this, please ignore this email or contact support immediately.</p>
+        <div class="footer">
+          Best regards,<br/>
+          Team Inventory Management System
+        </div>
+      </div>
+    </body>
+  </html>
+  `
+        };
+
+        await transporter.sendMail(mailOptions);
+        return res.json({ Success: true, message: "OTP sent to your email" });
+
+    }
+    catch (error) {
+        console.error(error);
+        return res.json({ Success: false, message: error.message });
+    }
+};
+
+
+export const resetPassword = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword) {
+        return res.json({ Success: false, message: "Please fill all the fields" });
+    }
+    try {
+        const user = userModel.findOne({ email });
+        if (!user) {
+            return res.json({ Success: false, message: "User not found" });
+        }
+        if (user.resetOTP == "" || user.resetOTP != otp) {
+            return res.json({ Success: false, message: "Invalid OTP" });
+        }
+        if (user.resetOTPExpireAt < Date.now()) {
+            return res.json({ Success: false, message: "OTP expired" });
+        }
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        user.resetOTP = "";
+        user.resetOTPExpireAt = 0;
+        await user.save();
+        return res.json({ Success: true, message: "Password reset successfully" });
+    } catch (error) {
+        return res.json({ Success: false, message: error.message });
     }
 };
